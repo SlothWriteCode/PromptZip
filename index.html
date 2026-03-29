@@ -686,45 +686,20 @@
       </div>
     </div>
 
-    <!-- Level Selector + Compress -->
+    <!-- Controls -->
     <div class="controls">
-      <span style="font-size:0.85rem;color:var(--muted);font-weight:600;">Level:</span>
-      <div class="level-selector">
-        <button class="level-btn" data-level="light" onclick="setLevel('light', this)">🪶 Light</button>
-        <button class="level-btn active" data-level="medium" onclick="setLevel('medium', this)">⚡ Medium</button>
-        <button class="level-btn" data-level="aggressive" onclick="setLevel('aggressive', this)">🔥 Max</button>
-      </div>
-      <button class="btn btn-primary" onclick="compress()">
-        <span>🗜️</span> Compress Now
+      <button class="btn btn-ai" id="ai-compress-btn" onclick="aiCompress()" style="padding:14px 40px;font-size:1rem;">
+        <div class="spinner" id="ai-spinner"></div>
+        <span id="ai-btn-text">🧠 Compress with AI</span>
       </button>
       <button class="btn btn-ghost" onclick="clearAll()">✕ Clear</button>
     </div>
 
-    <!-- AI Compress Section -->
-    <div class="ai-section">
-      <div class="ai-header">
-        <span class="ai-title">🤖 AI Compress <span class="ai-badge">LLMLingua</span></span>
-        <span style="font-size:0.78rem;color:var(--muted);">Uses Microsoft LLMLingua — smarter compression, up to 80%
-          token reduction</span>
-      </div>
-      <div class="ai-url-row" style="display:none;">
-        <input class="ai-url-input" id="ai-backend-url" type="url"
-          value="https://slothwritecode-promptzip-backend.hf.space" oninput="saveBackendUrl()" />
-      </div>
-      <div class="ai-modes">
-        <span class="ai-mode-label">Model:</span>
-        <div class="ai-mode-selector">
-          <button class="ai-mode-btn" data-mode="standard" onclick="setAiMode('standard', this)">📦 Standard</button>
-          <button class="ai-mode-btn active" data-mode="fast" onclick="setAiMode('fast', this)">⚡ Fast
-            (LLMLingua-2)</button>
-          <button class="ai-mode-btn" data-mode="long" onclick="setAiMode('long', this)">📄 Long Doc</button>
-        </div>
-        <button class="btn btn-ai" id="ai-compress-btn" onclick="aiCompress()">
-          <div class="spinner" id="ai-spinner"></div>
-          <span id="ai-btn-text">🧠 AI Compress</span>
-        </button>
-      </div>
-      <div class="ai-status success" id="ai-status">✅ AI Compress ready — powered by LLMLingua on Hugging Face.</div>
+    <!-- Hidden backend config -->
+    <input type="hidden" id="ai-backend-url" value="https://slothwritecode-promptzip-backend.hf.space" />
+    <div style="text-align:center;margin-bottom:16px;">
+      <div class="ai-status success" id="ai-status" style="display:inline-block;">✅ Powered by Microsoft LLMLingua-2 —
+        up to 80% token reduction</div>
     </div>
 
     <!-- Panels -->
@@ -1042,37 +1017,8 @@
       document.getElementById('output-panel').classList.remove('has-output');
     }
 
-    // ── AI Compress (LLMLingua backend) ───────────────────────────────────────
-    let currentAiMode = 'fast';
-
-    // Load saved backend URL from localStorage
-    (function initAi() {
-      const saved = localStorage.getItem('promptzip_backend_url');
-      if (saved) {
-        document.getElementById('ai-backend-url').value = saved;
-        document.getElementById('ai-status').textContent = '✅ Backend URL loaded. Ready to AI compress!';
-        document.getElementById('ai-status').className = 'ai-status success';
-      }
-    })();
-
-    function saveBackendUrl() {
-      const url = document.getElementById('ai-backend-url').value.trim();
-      if (url) {
-        localStorage.setItem('promptzip_backend_url', url);
-        document.getElementById('ai-status').textContent = '✅ Backend URL saved.';
-        document.getElementById('ai-status').className = 'ai-status success';
-      } else {
-        localStorage.removeItem('promptzip_backend_url');
-        document.getElementById('ai-status').textContent = 'Enter your backend URL above to enable AI compression.';
-        document.getElementById('ai-status').className = 'ai-status';
-      }
-    }
-
-    function setAiMode(mode, btn) {
-      currentAiMode = mode;
-      document.querySelectorAll('.ai-mode-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-    }
+    // ── AI Compress (LLMLingua-2 — best model, always used) ───────────────────
+    const currentAiMode = 'fast'; // locked to LLMLingua-2
 
     async function aiCompress() {
       const input = document.getElementById('input-text').value.trim();
