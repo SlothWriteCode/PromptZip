@@ -1,12 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PromptZip – AI Prompt Compressor</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet" />
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
     :root {
       --bg: #0b0f1a;
@@ -36,10 +44,12 @@
     body::before {
       content: '';
       position: fixed;
-      top: -200px; left: 50%;
+      top: -200px;
+      left: 50%;
       transform: translateX(-50%);
-      width: 800px; height: 500px;
-      background: radial-gradient(ellipse, rgba(108,99,255,0.15) 0%, transparent 70%);
+      width: 800px;
+      height: 500px;
+      background: radial-gradient(ellipse, rgba(108, 99, 255, 0.15) 0%, transparent 70%);
       pointer-events: none;
       z-index: 0;
     }
@@ -108,11 +118,13 @@
       content: '';
       position: absolute;
       inset: 0;
-      background: linear-gradient(135deg, transparent, rgba(108,99,255,0.04));
+      background: linear-gradient(135deg, transparent, rgba(108, 99, 255, 0.04));
       pointer-events: none;
     }
 
-    .stat-card:hover { transform: translateY(-2px); }
+    .stat-card:hover {
+      transform: translateY(-2px);
+    }
 
     .stat-label {
       font-size: 0.75rem;
@@ -130,9 +142,17 @@
       transition: all 0.4s;
     }
 
-    .stat-value.green { color: var(--green); }
-    .stat-value.accent { color: var(--accent2); }
-    .stat-value.neutral { color: var(--text); }
+    .stat-value.green {
+      color: var(--green);
+    }
+
+    .stat-value.accent {
+      color: var(--accent2);
+    }
+
+    .stat-value.neutral {
+      color: var(--text);
+    }
 
     .stat-sub {
       font-size: 0.78rem;
@@ -186,13 +206,13 @@
       font-weight: 600;
       padding: 3px 10px;
       border-radius: 20px;
-      background: rgba(108,99,255,0.15);
+      background: rgba(108, 99, 255, 0.15);
       color: var(--accent2);
       transition: all 0.3s;
     }
 
     .badge.green {
-      background: rgba(16,185,129,0.15);
+      background: rgba(16, 185, 129, 0.15);
       color: var(--green);
     }
 
@@ -211,7 +231,9 @@
       width: 100%;
     }
 
-    textarea::placeholder { color: var(--muted); }
+    textarea::placeholder {
+      color: var(--muted);
+    }
 
     .output-text {
       flex: 1;
@@ -259,15 +281,17 @@
     .btn-primary {
       background: linear-gradient(135deg, var(--accent), #8b5cf6);
       color: #fff;
-      box-shadow: 0 4px 20px rgba(108,99,255,0.35);
+      box-shadow: 0 4px 20px rgba(108, 99, 255, 0.35);
     }
 
     .btn-primary:hover {
       transform: translateY(-2px);
-      box-shadow: 0 6px 28px rgba(108,99,255,0.5);
+      box-shadow: 0 6px 28px rgba(108, 99, 255, 0.5);
     }
 
-    .btn-primary:active { transform: translateY(0); }
+    .btn-primary:active {
+      transform: translateY(0);
+    }
 
     .btn-ghost {
       background: var(--surface2);
@@ -352,7 +376,7 @@
       background: linear-gradient(90deg, var(--green), #34d399);
       width: 0%;
       transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-      box-shadow: 0 0 10px rgba(16,185,129,0.5);
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
     }
 
     /* Tips */
@@ -392,8 +416,16 @@
       transition: border-color 0.2s;
     }
 
-    .tip:hover { border-color: var(--border); color: var(--text); }
-    .tip .tip-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+    .tip:hover {
+      border-color: var(--border);
+      color: var(--text);
+    }
+
+    .tip .tip-icon {
+      font-size: 1.1rem;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
 
     /* Copy btn */
     .copy-btn {
@@ -412,29 +444,227 @@
       border-radius: 6px;
     }
 
-    .copy-btn:hover { color: var(--accent2); background: rgba(108,99,255,0.1); }
+    .copy-btn:hover {
+      color: var(--accent2);
+      background: rgba(108, 99, 255, 0.1);
+    }
 
     /* Pulse animation */
     @keyframes pulse-glow {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); }
-      50% { box-shadow: 0 0 0 6px rgba(16,185,129,0.1); }
+
+      0%,
+      100% {
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+      }
+
+      50% {
+        box-shadow: 0 0 0 6px rgba(16, 185, 129, 0.1);
+      }
     }
 
-    .panel.output-panel { animation: none; }
-    .panel.output-panel.has-output { border-color: rgba(16,185,129,0.3); }
+    .panel.output-panel {
+      animation: none;
+    }
+
+    .panel.output-panel.has-output {
+      border-color: rgba(16, 185, 129, 0.3);
+    }
+
+    /* AI Section */
+    .ai-section {
+      background: var(--surface);
+      border: 1px solid rgba(108, 99, 255, 0.35);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      margin-bottom: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .ai-section::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(108, 99, 255, 0.06), transparent);
+      pointer-events: none;
+    }
+
+    .ai-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .ai-title {
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--accent2);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .ai-badge {
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, var(--accent), #8b5cf6);
+      color: #fff;
+      letter-spacing: 0.04em;
+    }
+
+    .ai-url-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .ai-url-input {
+      flex: 1;
+      min-width: 200px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 9px 14px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .ai-url-input::placeholder {
+      color: var(--muted);
+    }
+
+    .ai-url-input:focus {
+      border-color: var(--accent);
+    }
+
+    .ai-modes {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .ai-mode-label {
+      font-size: 0.8rem;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .ai-mode-selector {
+      display: flex;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 3px;
+      gap: 4px;
+    }
+
+    .ai-mode-btn {
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-family: 'Inter', sans-serif;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .ai-mode-btn.active {
+      background: linear-gradient(135deg, var(--accent), #8b5cf6);
+      color: #fff;
+    }
+
+    .btn-ai {
+      background: linear-gradient(135deg, #059669, #10b981);
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-ai:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 24px rgba(16, 185, 129, 0.45);
+    }
+
+    .btn-ai:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .spinner {
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: none;
+    }
+
+    .spinner.visible {
+      display: block;
+    }
+
+    .ai-status {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 8px;
+      min-height: 18px;
+      transition: color 0.2s;
+    }
+
+    .ai-status.error {
+      color: var(--red);
+    }
+
+    .ai-status.success {
+      color: var(--green);
+    }
 
     @media (max-width: 700px) {
-      .panels { grid-template-columns: 1fr; }
-      .stats-bar { grid-template-columns: 1fr; }
-      .tips-grid { grid-template-columns: 1fr; }
+      .panels {
+        grid-template-columns: 1fr;
+      }
+
+      .stats-bar {
+        grid-template-columns: 1fr;
+      }
+
+      .tips-grid {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
+
 <body>
   <div class="container">
     <header>
       <div class="logo"><span class="logo-icon">🗜️</span> PromptZip</div>
-      <p>Compress your AI prompts to save tokens without losing meaning. Less tokens = more messages on the free plan.</p>
+      <p>Compress your AI prompts to save tokens without losing meaning. Less tokens = more messages on the free plan.
+      </p>
     </header>
 
     <!-- Stats Bar -->
@@ -470,6 +700,34 @@
       <button class="btn btn-ghost" onclick="clearAll()">✕ Clear</button>
     </div>
 
+    <!-- AI Compress Section -->
+    <div class="ai-section">
+      <div class="ai-header">
+        <span class="ai-title">🤖 AI Compress <span class="ai-badge">LLMLingua</span></span>
+        <span style="font-size:0.78rem;color:var(--muted);">Uses Microsoft LLMLingua — smarter compression, up to 80%
+          token reduction</span>
+      </div>
+      <div class="ai-url-row">
+        <input class="ai-url-input" id="ai-backend-url" type="url"
+          placeholder="Your HF Spaces URL e.g. https://your-name-promptzip-backend.hf.space"
+          oninput="saveBackendUrl()" />
+      </div>
+      <div class="ai-modes">
+        <span class="ai-mode-label">Model:</span>
+        <div class="ai-mode-selector">
+          <button class="ai-mode-btn" data-mode="standard" onclick="setAiMode('standard', this)">📦 Standard</button>
+          <button class="ai-mode-btn active" data-mode="fast" onclick="setAiMode('fast', this)">⚡ Fast
+            (LLMLingua-2)</button>
+          <button class="ai-mode-btn" data-mode="long" onclick="setAiMode('long', this)">📄 Long Doc</button>
+        </div>
+        <button class="btn btn-ai" id="ai-compress-btn" onclick="aiCompress()">
+          <div class="spinner" id="ai-spinner"></div>
+          <span id="ai-btn-text">🧠 AI Compress</span>
+        </button>
+      </div>
+      <div class="ai-status" id="ai-status">Enter your backend URL above to enable AI compression.</div>
+    </div>
+
     <!-- Panels -->
     <div class="panels">
       <div class="panel">
@@ -477,7 +735,9 @@
           <span class="panel-title">📝 Original Prompt</span>
           <span class="badge" id="badge-before">0 tokens</span>
         </div>
-        <textarea id="input-text" placeholder="Paste your prompt here...&#10;&#10;Example: Could you please help me to understand what the capital of France is? I would really appreciate a detailed explanation if possible." oninput="onInput()"></textarea>
+        <textarea id="input-text"
+          placeholder="Paste your prompt here...&#10;&#10;Example: Could you please help me to understand what the capital of France is? I would really appreciate a detailed explanation if possible."
+          oninput="onInput()"></textarea>
       </div>
 
       <div class="panel output-panel" id="output-panel">
@@ -507,10 +767,14 @@
     <div class="tips">
       <div class="tips-title">💡 Manual Tips to Save Even More Tokens</div>
       <div class="tips-grid">
-        <div class="tip"><span class="tip-icon">✂️</span><span>Remove greetings & filler: "Could you please..." → just ask directly</span></div>
-        <div class="tip"><span class="tip-icon">🔑</span><span>Use keywords instead of full sentences when the meaning is clear</span></div>
-        <div class="tip"><span class="tip-icon">📄</span><span>Summarize long articles/docs before pasting — keep only what's needed</span></div>
-        <div class="tip"><span class="tip-icon">🔁</span><span>Avoid repeating context already said in the same conversation</span></div>
+        <div class="tip"><span class="tip-icon">✂️</span><span>Remove greetings & filler: "Could you please..." → just
+            ask directly</span></div>
+        <div class="tip"><span class="tip-icon">🔑</span><span>Use keywords instead of full sentences when the meaning
+            is clear</span></div>
+        <div class="tip"><span class="tip-icon">📄</span><span>Summarize long articles/docs before pasting — keep only
+            what's needed</span></div>
+        <div class="tip"><span class="tip-icon">🔁</span><span>Avoid repeating context already said in the same
+            conversation</span></div>
       </div>
     </div>
   </div>
@@ -770,7 +1034,7 @@
       document.getElementById('input-text').value = '';
       document.getElementById('output-text').textContent = 'Compressed prompt will appear here...';
       document.getElementById('output-text').classList.add('empty');
-      ['stat-before','stat-after','stat-saved'].forEach(id => document.getElementById(id).textContent = '0');
+      ['stat-before', 'stat-after', 'stat-saved'].forEach(id => document.getElementById(id).textContent = '0');
       document.getElementById('stat-sub').textContent = 'start typing to see savings';
       document.getElementById('badge-before').textContent = '0 tokens';
       document.getElementById('badge-after').textContent = '0 tokens';
@@ -778,6 +1042,113 @@
       document.getElementById('progress-fill').style.width = '0%';
       document.getElementById('output-panel').classList.remove('has-output');
     }
+
+    // ── AI Compress (LLMLingua backend) ───────────────────────────────────────
+    let currentAiMode = 'fast';
+
+    // Load saved backend URL from localStorage
+    (function initAi() {
+      const saved = localStorage.getItem('promptzip_backend_url');
+      if (saved) {
+        document.getElementById('ai-backend-url').value = saved;
+        document.getElementById('ai-status').textContent = '✅ Backend URL loaded. Ready to AI compress!';
+        document.getElementById('ai-status').className = 'ai-status success';
+      }
+    })();
+
+    function saveBackendUrl() {
+      const url = document.getElementById('ai-backend-url').value.trim();
+      if (url) {
+        localStorage.setItem('promptzip_backend_url', url);
+        document.getElementById('ai-status').textContent = '✅ Backend URL saved.';
+        document.getElementById('ai-status').className = 'ai-status success';
+      } else {
+        localStorage.removeItem('promptzip_backend_url');
+        document.getElementById('ai-status').textContent = 'Enter your backend URL above to enable AI compression.';
+        document.getElementById('ai-status').className = 'ai-status';
+      }
+    }
+
+    function setAiMode(mode, btn) {
+      currentAiMode = mode;
+      document.querySelectorAll('.ai-mode-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+
+    async function aiCompress() {
+      const input = document.getElementById('input-text').value.trim();
+      if (!input) {
+        setAiStatus('⚠️ Please enter a prompt first.', 'error');
+        return;
+      }
+
+      const backendUrl = (document.getElementById('ai-backend-url').value || '').trim().replace(/\/$/, '');
+      if (!backendUrl) {
+        setAiStatus('⚠️ Please enter your backend URL first.', 'error');
+        return;
+      }
+
+      // Show loading
+      const btn = document.getElementById('ai-compress-btn');
+      const spinner = document.getElementById('ai-spinner');
+      const btnText = document.getElementById('ai-btn-text');
+      btn.disabled = true;
+      spinner.classList.add('visible');
+      btnText.textContent = 'Compressing…';
+      setAiStatus('⏳ Calling LLMLingua… (first call may take ~30s on cold start)', '');
+
+      try {
+        const endpoint = `${backendUrl}/compress/${currentAiMode}`;
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt: input, ratio: 0.5 }),
+        });
+
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.detail || `HTTP ${res.status}`);
+        }
+
+        const data = await res.json();
+        const compressed = data.compressed;
+        const tokensBefore = data.tokens_before;
+        const tokensAfter = data.tokens_after;
+        const saved = Math.max(0, tokensBefore - tokensAfter);
+        const pct = tokensBefore > 0 ? Math.round((saved / tokensBefore) * 100) : 0;
+
+        // Update output panel
+        const outputEl = document.getElementById('output-text');
+        outputEl.textContent = compressed;
+        outputEl.classList.remove('empty');
+
+        // Update stats
+        document.getElementById('stat-before').textContent = tokensBefore;
+        document.getElementById('stat-after').textContent = tokensAfter;
+        document.getElementById('stat-saved').textContent = saved;
+        document.getElementById('stat-sub').textContent = pct + '% reduction (AI)';
+        document.getElementById('badge-before').textContent = tokensBefore + ' tokens';
+        document.getElementById('badge-after').textContent = tokensAfter + ' tokens';
+        document.getElementById('savings-pct').textContent = pct + '% saved';
+        document.getElementById('progress-fill').style.width = Math.min(pct, 100) + '%';
+        document.getElementById('output-panel').classList.toggle('has-output', saved > 0);
+
+        setAiStatus(`✅ Compressed by ${pct}% using ${data.model_used}`, 'success');
+      } catch (err) {
+        setAiStatus(`❌ Error: ${err.message}`, 'error');
+      } finally {
+        btn.disabled = false;
+        spinner.classList.remove('visible');
+        btnText.textContent = '🧠 AI Compress';
+      }
+    }
+
+    function setAiStatus(msg, type) {
+      const el = document.getElementById('ai-status');
+      el.textContent = msg;
+      el.className = 'ai-status' + (type ? ' ' + type : '');
+    }
   </script>
 </body>
+
 </html>
