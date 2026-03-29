@@ -707,10 +707,9 @@
         <span style="font-size:0.78rem;color:var(--muted);">Uses Microsoft LLMLingua — smarter compression, up to 80%
           token reduction</span>
       </div>
-      <div class="ai-url-row">
+      <div class="ai-url-row" style="display:none;">
         <input class="ai-url-input" id="ai-backend-url" type="url"
-          placeholder="Your HF Spaces URL e.g. https://your-name-promptzip-backend.hf.space"
-          oninput="saveBackendUrl()" />
+          value="https://slothwritecode-promptzip-backend.hf.space" oninput="saveBackendUrl()" />
       </div>
       <div class="ai-modes">
         <span class="ai-mode-label">Model:</span>
@@ -725,7 +724,7 @@
           <span id="ai-btn-text">🧠 AI Compress</span>
         </button>
       </div>
-      <div class="ai-status" id="ai-status">Enter your backend URL above to enable AI compression.</div>
+      <div class="ai-status success" id="ai-status">✅ AI Compress ready — powered by LLMLingua on Hugging Face.</div>
     </div>
 
     <!-- Panels -->
@@ -1082,9 +1081,10 @@
         return;
       }
 
-      const backendUrl = (document.getElementById('ai-backend-url').value || '').trim().replace(/\/$/, '');
+      const HARDCODED_BACKEND = 'https://slothwritecode-promptzip-backend.hf.space';
+      const backendUrl = ((document.getElementById('ai-backend-url').value || '').trim() || HARDCODED_BACKEND).replace(/\/$/, '');
       if (!backendUrl) {
-        setAiStatus('⚠️ Please enter your backend URL first.', 'error');
+        setAiStatus('⚠️ Backend URL not configured.', 'error');
         return;
       }
 
