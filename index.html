@@ -643,6 +643,55 @@
       color: var(--green);
     }
 
+    .ai-strength {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .ai-strength-label {
+      font-size: 0.8rem;
+      color: var(--muted);
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .ai-strength-selector {
+      display: inline-flex;
+      gap: 6px;
+      padding: 4px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+    }
+
+    .ai-strength-btn {
+      padding: 8px 14px;
+      border: none;
+      border-radius: 999px;
+      background: transparent;
+      color: var(--muted);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .ai-strength-btn:hover {
+      color: var(--text);
+    }
+
+    .ai-strength-btn.active {
+      background: linear-gradient(135deg, #059669, #10b981);
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.28);
+    }
+
     @media (max-width: 700px) {
       .panels {
         grid-template-columns: 1fr;
@@ -697,9 +746,16 @@
 
     <!-- Hidden backend config -->
     <input type="hidden" id="ai-backend-url" value="https://slothwritecode-promptzip-backend.hf.space" />
+    <div class="ai-strength">
+      <span class="ai-strength-label">Compression Strength</span>
+      <div class="ai-strength-selector">
+        <button class="ai-strength-btn" id="strength-light" type="button" onclick="setAiStrength('light', this)">Light</button>
+        <button class="ai-strength-btn active" id="strength-balanced" type="button" onclick="setAiStrength('balanced', this)">Balanced</button>
+        <button class="ai-strength-btn" id="strength-aggressive" type="button" onclick="setAiStrength('aggressive', this)">Aggressive</button>
+      </div>
+    </div>
     <div style="text-align:center;margin-bottom:16px;">
-      <div class="ai-status success" id="ai-status" style="display:inline-block;">✅ Powered by Microsoft LLMLingua-2 —
-        up to 80% token reduction</div>
+      <div class="ai-status success" id="ai-status" style="display:inline-block;">Balanced mode keeps more prompt detail while still saving tokens.</div>
     </div>
 
     <!-- Panels -->
@@ -1019,6 +1075,29 @@
 
     // ── AI Compress (LLMLingua-2 — best model, always used) ───────────────────
     const currentAiMode = 'fast'; // locked to LLMLingua-2
+    let currentAiStrength = 'balanced';
+    const aiStrengthConfig = {
+      light: {
+        ratio: 0.85,
+        label: 'Light',
+      },
+      balanced: {
+        ratio: 0.75,
+        label: 'Balanced',
+      },
+      aggressive: {
+        ratio: 0.6,
+        label: 'Aggressive',
+      }
+    };
+
+    function setAiStrength(level, btn) {
+      currentAiStrength = level;
+      document.querySelectorAll('.ai-strength-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const mode = aiStrengthConfig[level];
+      setAiStatus(`${mode.label} mode selected. Target keeps about ${Math.round(mode.ratio * 100)}% of your prompt tokens.`, 'success');
+    }
 
     async function aiCompress() {
       const input = document.getElementById('input-text').value.trim();
@@ -1045,10 +1124,15 @@
 
       try {
         const endpoint = `${backendUrl}/compress/${currentAiMode}`;
+        const selectedStrength = aiStrengthConfig[currentAiStrength] || aiStrengthConfig.balanced;
         const res = await fetch(endpoint, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt: input, ratio: 0.5 }),
+          body: JSON.stringify({
+            prompt: input,
+            ratio: selectedStrength.ratio,
+            preserve_structure: currentAiStrength !== 'aggressive',
+          }),
         });
 
         if (!res.ok) {
@@ -1079,7 +1163,7 @@
         document.getElementById('progress-fill').style.width = Math.min(pct, 100) + '%';
         document.getElementById('output-panel').classList.toggle('has-output', saved > 0);
 
-        setAiStatus(`✅ Compressed by ${pct}% using ${data.model_used}`, 'success');
+        setAiStatus(`${selectedStrength.label} mode compressed by ${pct}% using ${data.model_used}`, 'success');
       } catch (err) {
         setAiStatus(`❌ Error: ${err.message}`, 'error');
       } finally {
