@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PromptZip – AI Prompt Compressor</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0b0f1a;
+      --surface: #131929;
+      --surface2: #1a2236;
+      --border: #2a3552;
+      --accent: #6c63ff;
+      --accent2: #a78bfa;
+      --green: #10b981;
+      --red: #f43f5e;
+      --yellow: #f59e0b;
+      --text: #e2e8f0;
+      --muted: #64748b;
+      --radius: 14px;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 0;
+      overflow-x: hidden;
+    }
+
+    /* Background glow */
+    body::before {
+      content: '';
+      position: fixed;
+      top: -200px; left: 50%;
+      transform: translateX(-50%);
+      width: 800px; height: 500px;
+      background: radial-gradient(ellipse, rgba(108,99,255,0.15) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 40px 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Header */
+    header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    .logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-size: 2.4rem;
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 10px;
+    }
+
+    .logo-icon {
+      font-size: 2rem;
+      -webkit-text-fill-color: initial;
+    }
+
+    header p {
+      color: var(--muted);
+      font-size: 1rem;
+      max-width: 480px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    /* Stats bar */
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      text-align: center;
+      transition: transform 0.2s, border-color 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, transparent, rgba(108,99,255,0.04));
+      pointer-events: none;
+    }
+
+    .stat-card:hover { transform: translateY(-2px); }
+
+    .stat-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-size: 2.2rem;
+      font-weight: 800;
+      line-height: 1;
+      transition: all 0.4s;
+    }
+
+    .stat-value.green { color: var(--green); }
+    .stat-value.accent { color: var(--accent2); }
+    .stat-value.neutral { color: var(--text); }
+
+    .stat-sub {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    /* Panels */
+    .panels {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: border-color 0.3s;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface2);
+    }
+
+    .panel-title {
+      font-size: 0.82rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 20px;
+      background: rgba(108,99,255,0.15);
+      color: var(--accent2);
+      transition: all 0.3s;
+    }
+
+    .badge.green {
+      background: rgba(16,185,129,0.15);
+      color: var(--green);
+    }
+
+    textarea {
+      flex: 1;
+      min-height: 240px;
+      background: transparent;
+      border: none;
+      outline: none;
+      resize: none;
+      padding: 18px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.92rem;
+      line-height: 1.7;
+      color: var(--text);
+      width: 100%;
+    }
+
+    textarea::placeholder { color: var(--muted); }
+
+    .output-text {
+      flex: 1;
+      min-height: 240px;
+      padding: 18px;
+      font-size: 0.92rem;
+      line-height: 1.7;
+      color: #a0f0c8;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: 'Inter', sans-serif;
+      overflow-y: auto;
+    }
+
+    .output-text.empty {
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    /* Controls */
+    .controls {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 28px;
+      border-radius: 10px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+      letter-spacing: 0.01em;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), #8b5cf6);
+      color: #fff;
+      box-shadow: 0 4px 20px rgba(108,99,255,0.35);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 28px rgba(108,99,255,0.5);
+    }
+
+    .btn-primary:active { transform: translateY(0); }
+
+    .btn-ghost {
+      background: var(--surface2);
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+
+    .btn-ghost:hover {
+      color: var(--text);
+      border-color: var(--accent);
+    }
+
+    /* Level selector */
+    .level-selector {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 4px;
+    }
+
+    .level-btn {
+      padding: 6px 14px;
+      border-radius: 7px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-family: 'Inter', sans-serif;
+      transition: all 0.2s;
+    }
+
+    .level-btn.active {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    /* Savings bar */
+    .savings-bar-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      margin-bottom: 20px;
+    }
+
+    .savings-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .savings-title {
+      font-size: 0.82rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .savings-pct {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: var(--green);
+    }
+
+    .progress-track {
+      background: var(--surface2);
+      border-radius: 99px;
+      height: 10px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: 99px;
+      background: linear-gradient(90deg, var(--green), #34d399);
+      width: 0%;
+      transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 0 10px rgba(16,185,129,0.5);
+    }
+
+    /* Tips */
+    .tips {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+    }
+
+    .tips-title {
+      font-size: 0.82rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
+    .tips-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .tip {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      background: var(--surface2);
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 0.83rem;
+      color: var(--muted);
+      line-height: 1.5;
+      border: 1px solid transparent;
+      transition: border-color 0.2s;
+    }
+
+    .tip:hover { border-color: var(--border); color: var(--text); }
+    .tip .tip-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+
+    /* Copy btn */
+    .copy-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--muted);
+      font-size: 0.8rem;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: color 0.2s;
+      padding: 4px 8px;
+      border-radius: 6px;
+    }
+
+    .copy-btn:hover { color: var(--accent2); background: rgba(108,99,255,0.1); }
+
+    /* Pulse animation */
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); }
+      50% { box-shadow: 0 0 0 6px rgba(16,185,129,0.1); }
+    }
+
+    .panel.output-panel { animation: none; }
+    .panel.output-panel.has-output { border-color: rgba(16,185,129,0.3); }
+
+    @media (max-width: 700px) {
+      .panels { grid-template-columns: 1fr; }
+      .stats-bar { grid-template-columns: 1fr; }
+      .tips-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo"><span class="logo-icon">🗜️</span> PromptZip</div>
+      <p>Compress your AI prompts to save tokens without losing meaning. Less tokens = more messages on the free plan.</p>
+    </header>
+
+    <!-- Stats Bar -->
+    <div class="stats-bar">
+      <div class="stat-card">
+        <div class="stat-label">Original Tokens</div>
+        <div class="stat-value neutral" id="stat-before">0</div>
+        <div class="stat-sub">before compression</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Compressed Tokens</div>
+        <div class="stat-value accent" id="stat-after">0</div>
+        <div class="stat-sub">after compression</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Tokens Saved</div>
+        <div class="stat-value green" id="stat-saved">0</div>
+        <div class="stat-sub" id="stat-sub">start typing to see savings</div>
+      </div>
+    </div>
+
+    <!-- Level Selector + Compress -->
+    <div class="controls">
+      <span style="font-size:0.85rem;color:var(--muted);font-weight:600;">Level:</span>
+      <div class="level-selector">
+        <button class="level-btn" data-level="light" onclick="setLevel('light', this)">🪶 Light</button>
+        <button class="level-btn active" data-level="medium" onclick="setLevel('medium', this)">⚡ Medium</button>
+        <button class="level-btn" data-level="aggressive" onclick="setLevel('aggressive', this)">🔥 Max</button>
+      </div>
+      <button class="btn btn-primary" onclick="compress()">
+        <span>🗜️</span> Compress Now
+      </button>
+      <button class="btn btn-ghost" onclick="clearAll()">✕ Clear</button>
+    </div>
+
+    <!-- Panels -->
+    <div class="panels">
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">📝 Original Prompt</span>
+          <span class="badge" id="badge-before">0 tokens</span>
+        </div>
+        <textarea id="input-text" placeholder="Paste your prompt here...&#10;&#10;Example: Could you please help me to understand what the capital of France is? I would really appreciate a detailed explanation if possible." oninput="onInput()"></textarea>
+      </div>
+
+      <div class="panel output-panel" id="output-panel">
+        <div class="panel-header">
+          <span class="panel-title">✨ Compressed Output</span>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="badge green" id="badge-after">0 tokens</span>
+            <button class="copy-btn" onclick="copyOutput()">⎘ Copy</button>
+          </div>
+        </div>
+        <div class="output-text empty" id="output-text">Compressed prompt will appear here...</div>
+      </div>
+    </div>
+
+    <!-- Savings Bar -->
+    <div class="savings-bar-wrap">
+      <div class="savings-header">
+        <span class="savings-title">💾 Token Savings</span>
+        <span class="savings-pct" id="savings-pct">0% saved</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progress-fill"></div>
+      </div>
+    </div>
+
+    <!-- Tips -->
+    <div class="tips">
+      <div class="tips-title">💡 Manual Tips to Save Even More Tokens</div>
+      <div class="tips-grid">
+        <div class="tip"><span class="tip-icon">✂️</span><span>Remove greetings & filler: "Could you please..." → just ask directly</span></div>
+        <div class="tip"><span class="tip-icon">🔑</span><span>Use keywords instead of full sentences when the meaning is clear</span></div>
+        <div class="tip"><span class="tip-icon">📄</span><span>Summarize long articles/docs before pasting — keep only what's needed</span></div>
+        <div class="tip"><span class="tip-icon">🔁</span><span>Avoid repeating context already said in the same conversation</span></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentLevel = 'medium';
+
+    // --- Token counter (GPT-style approximation: ~4 chars per token) ---
+    function countTokens(text) {
+      if (!text || !text.trim()) return 0;
+      // Simple but reasonable approximation
+      const words = text.trim().split(/\s+/);
+      return Math.ceil(words.length * 1.33);
+    }
+
+    // --- Filler phrases to remove by level ---
+    const fillerPatterns = {
+      light: [
+        /\bplease\b/gi,
+        /\bkindly\b/gi,
+        /\bif you could\b/gi,
+        /\bif possible\b/gi,
+        /\bi was wondering\b/gi,
+        /\bwould you mind\b/gi,
+        /\bdo you think you could\b/gi,
+        /\bi would really appreciate\b/gi,
+        /\bi'd really appreciate\b/gi,
+        /\bmany thanks\b/gi,
+        /\bthank you\b/gi,
+        /\bthanks a lot\b/gi,
+        /\bthanks\b/gi,
+        /\bhi there\b/gi,
+        /\bhello\b/gi,
+        /\bhey\b/gi,
+      ],
+      medium: [
+        /\bplease\b/gi, /\bkindly\b/gi,
+        /\bif you could\b/gi, /\bif possible\b/gi,
+        /\bi was wondering\b/gi, /\bwould you mind\b/gi,
+        /\bdo you think you could\b/gi,
+        /\bi would really appreciate\b/gi, /\bi'd really appreciate\b/gi,
+        /\bmany thanks\b/gi, /\bthank you\b/gi, /\bthanks a lot\b/gi, /\bthanks\b/gi,
+        /\bhi there\b/gi, /\bhello\b/gi, /\bhey\b/gi,
+        /\bcould you please\b/gi, /\bcan you please\b/gi,
+        /\bcould you\b/gi, /\bcan you\b/gi,
+        /\bwould you\b/gi,
+        /\bi would like (you )?(to )?(help me )?(to )?(know|understand|explain|tell me|find out|learn|write|create|make|generate|provide|give)/gi,
+        /\bi want (you )?(to )?(help me )?(to )?(know|understand|explain|tell me|find out|learn|write|create|make|generate|provide|give)/gi,
+        /\bi need (you )?(to )?(help me )?(to )?/gi,
+        /\bplease (help me |to )?(know|understand|explain|tell me|find out|learn)/gi,
+        /\bin detail\b/gi,
+        /\bif that (makes sense|is ok|is okay|is alright)\b/gi,
+        /\bif (that'?s|it'?s) okay\b/gi,
+        /\bas (much as possible|best as you can)\b/gi,
+        /\bto the best of your ability\b/gi,
+      ],
+      aggressive: [] // will include everything above + more
+    };
+
+    // Verbose phrase replacements
+    const replacements = {
+      light: [],
+      medium: [
+        [/\bI am writing to ask (you )?about\b/gi, 'About:'],
+        [/\bI have a question about\b/gi, 'Q:'],
+        [/\bI would like to know\b/gi, '→'],
+        [/\bI want to know\b/gi, '→'],
+        [/\bin other words\b/gi, 'i.e.'],
+        [/\bfor example\b/gi, 'e.g.'],
+        [/\bfor instance\b/gi, 'e.g.'],
+        [/\bthat is to say\b/gi, 'i.e.'],
+        [/\bwhich means\b/gi, '='],
+        [/\bwhich is\b/gi, '='],
+        [/\bin addition\b/gi, 'also'],
+        [/\bfurthermore\b/gi, 'also'],
+        [/\bmoreover\b/gi, 'also'],
+        [/\bhowever\b/gi, 'but'],
+        [/\bnevertheless\b/gi, 'but'],
+        [/\bnotwithstanding\b/gi, 'despite'],
+        [/\bdue to the fact that\b/gi, 'because'],
+        [/\bowing to the fact that\b/gi, 'because'],
+        [/\bin order to\b/gi, 'to'],
+        [/\bso as to\b/gi, 'to'],
+        [/\bwith the purpose of\b/gi, 'to'],
+        [/\ba large number of\b/gi, 'many'],
+        [/\ba great deal of\b/gi, 'much'],
+        [/\bat this point in time\b/gi, 'now'],
+        [/\bat the present time\b/gi, 'now'],
+        [/\bcurrently\b/gi, 'now'],
+        [/\bpresently\b/gi, 'now'],
+        [/\bin the near future\b/gi, 'soon'],
+        [/\bin the event that\b/gi, 'if'],
+        [/\bin cases where\b/gi, 'when'],
+        [/\bprior to\b/gi, 'before'],
+        [/\bsubsequent to\b/gi, 'after'],
+        [/\bwith regard to\b/gi, 're:'],
+        [/\bwith respect to\b/gi, 're:'],
+        [/\bconcerning\b/gi, 're:'],
+        [/\bregarding\b/gi, 're:'],
+        [/\bpertaining to\b/gi, 're:'],
+      ],
+      aggressive: [
+        [/\bI am writing to ask (you )?about\b/gi, 'Re:'],
+        [/\bI have a question about\b/gi, 'Q:'],
+        [/\bI would like to know\b/gi, '→'],
+        [/\bI want to know\b/gi, '→'],
+        [/\bin other words\b/gi, 'i.e.'],
+        [/\bfor example\b/gi, 'e.g.'],
+        [/\bfor instance\b/gi, 'e.g.'],
+        [/\bthat is to say\b/gi, 'i.e.'],
+        [/\bwhich means\b/gi, '='],
+        [/\bwhich is\b/gi, '='],
+        [/\bin addition\b/gi, '+'],
+        [/\bfurthermore\b/gi, '+'],
+        [/\bmoreover\b/gi, '+'],
+        [/\bhowever\b/gi, 'but'],
+        [/\bnevertheless\b/gi, 'but'],
+        [/\bnotwithstanding\b/gi, 'despite'],
+        [/\bdue to the fact that\b/gi, 'because'],
+        [/\bowing to the fact that\b/gi, 'because'],
+        [/\bin order to\b/gi, 'to'],
+        [/\bso as to\b/gi, 'to'],
+        [/\bwith the purpose of\b/gi, 'to'],
+        [/\ba large number of\b/gi, 'many'],
+        [/\ba great deal of\b/gi, 'much'],
+        [/\bat this point in time\b/gi, 'now'],
+        [/\bat the present time\b/gi, 'now'],
+        [/\bcurrently\b/gi, 'now'],
+        [/\bpresently\b/gi, 'now'],
+        [/\bin the near future\b/gi, 'soon'],
+        [/\bin the event that\b/gi, 'if'],
+        [/\bin cases where\b/gi, 'if'],
+        [/\bprior to\b/gi, 'before'],
+        [/\bsubsequent to\b/gi, 'after'],
+        [/\bwith regard to\b/gi, 're:'],
+        [/\bwith respect to\b/gi, 're:'],
+        [/\bconcerning\b/gi, 're:'],
+        [/\bregarding\b/gi, 're:'],
+        [/\bit is important to note that\b/gi, 'note:'],
+        [/\bit is worth noting that\b/gi, 'note:'],
+        [/\bit should be noted that\b/gi, 'note:'],
+        [/\bplease note that\b/gi, 'note:'],
+        [/\bthe reason why\b/gi, 'reason:'],
+        [/\bthe fact that\b/gi, ''],
+        [/\bI (am|'m) (going to|going to)\b/gi, "I'll"],
+        [/\bI (am|'m) trying to\b/gi, 'trying to'],
+        [/\bI just (want|need|would like) to\b/gi, 'to'],
+        [/\bcan you give me an? (example|idea|overview|summary|explanation) of\b/gi, 'explain:'],
+        [/\bwhat (exactly|specifically) (is|are|does|do|would)\b/gi, 'what'],
+        [/\bhow (exactly|specifically) (do|does|would|can|should)\b/gi, 'how'],
+        [/\btell me (more )?(about|how)\b/gi, 'explain'],
+        [/\bstep by step\b/gi, 'stepwise'],
+        [/\bvery (much|quickly|easily|important|useful|interesting|helpful|specific|detailed|clear|simple)\b/gi, '$1'],
+        [/\breally (much|quickly|easily|important|useful|interesting|helpful|specific|detailed|clear|simple)\b/gi, '$1'],
+        [/\bquite (much|quickly|easily|important|useful|interesting|helpful|specific|detailed|clear|simple)\b/gi, '$1'],
+        [/\bextremely\b/gi, ''],
+        [/\bincredibly\b/gi, ''],
+        [/\babsolutely\b/gi, ''],
+        [/\bbasically\b/gi, ''],
+        [/\bessentially\b/gi, ''],
+        [/\bfundamentally\b/gi, ''],
+        [/\bgenerally speaking\b/gi, 'generally'],
+        [/\bbroadly speaking\b/gi, 'broadly'],
+      ]
+    };
+
+    function compressText(text, level) {
+      let result = text;
+
+      // Apply replacements first (order matters)
+      const reps = replacements[level] || [];
+      for (const [pattern, replacement] of reps) {
+        result = result.replace(pattern, replacement);
+      }
+
+      // Remove filler phrases
+      const fillers = fillerPatterns[level] || [];
+      for (const pattern of fillers) {
+        result = result.replace(pattern, '');
+      }
+
+      // Clean up multiple spaces & leading/trailing whitespace per line
+      result = result
+        .split('\n')
+        .map(line => line.replace(/\s{2,}/g, ' ').trim())
+        .filter((line, i, arr) => !(line === '' && arr[i - 1] === ''))
+        .join('\n');
+
+      // Clean up punctuation artifacts like " ," " ." "  :" at start of sentence
+      result = result.replace(/ ([,.:;!?])/g, '$1');
+      result = result.replace(/^[,.:;]\s*/gm, '');
+      result = result.trim();
+
+      return result;
+    }
+
+    function setLevel(level, btn) {
+      currentLevel = level;
+      document.querySelectorAll('.level-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      // Re-compress if there's content
+      const input = document.getElementById('input-text').value;
+      if (input.trim()) compress();
+    }
+
+    function onInput() {
+      const text = document.getElementById('input-text').value;
+      const tokens = countTokens(text);
+      document.getElementById('stat-before').textContent = tokens;
+      document.getElementById('badge-before').textContent = tokens + ' tokens';
+    }
+
+    function compress() {
+      const input = document.getElementById('input-text').value;
+      if (!input.trim()) return;
+
+      const compressed = compressText(input, currentLevel);
+
+      const tokensBefore = countTokens(input);
+      const tokensAfter = countTokens(compressed);
+      const saved = Math.max(0, tokensBefore - tokensAfter);
+      const pct = tokensBefore > 0 ? Math.round((saved / tokensBefore) * 100) : 0;
+
+      // Update output
+      const outputEl = document.getElementById('output-text');
+      outputEl.textContent = compressed;
+      outputEl.classList.remove('empty');
+
+      // Update stats
+      document.getElementById('stat-before').textContent = tokensBefore;
+      document.getElementById('stat-after').textContent = tokensAfter;
+      document.getElementById('stat-saved').textContent = saved;
+      document.getElementById('stat-sub').textContent = pct + '% reduction';
+      document.getElementById('badge-before').textContent = tokensBefore + ' tokens';
+      document.getElementById('badge-after').textContent = tokensAfter + ' tokens';
+      document.getElementById('savings-pct').textContent = pct + '% saved';
+      document.getElementById('progress-fill').style.width = Math.min(pct, 100) + '%';
+
+      // Panel glow
+      const panel = document.getElementById('output-panel');
+      panel.classList.toggle('has-output', saved > 0);
+    }
+
+    function copyOutput() {
+      const text = document.getElementById('output-text').textContent;
+      if (!text || text === 'Compressed prompt will appear here...') return;
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = document.querySelector('.copy-btn');
+        const orig = btn.innerHTML;
+        btn.innerHTML = '✓ Copied!';
+        btn.style.color = 'var(--green)';
+        setTimeout(() => { btn.innerHTML = orig; btn.style.color = ''; }, 2000);
+      });
+    }
+
+    function clearAll() {
+      document.getElementById('input-text').value = '';
+      document.getElementById('output-text').textContent = 'Compressed prompt will appear here...';
+      document.getElementById('output-text').classList.add('empty');
+      ['stat-before','stat-after','stat-saved'].forEach(id => document.getElementById(id).textContent = '0');
+      document.getElementById('stat-sub').textContent = 'start typing to see savings';
+      document.getElementById('badge-before').textContent = '0 tokens';
+      document.getElementById('badge-after').textContent = '0 tokens';
+      document.getElementById('savings-pct').textContent = '0% saved';
+      document.getElementById('progress-fill').style.width = '0%';
+      document.getElementById('output-panel').classList.remove('has-output');
+    }
+  </script>
+</body>
+</html>
